@@ -23,19 +23,19 @@ module control_unit (
 // ---------------------------------------------------
 
   // TODO - connect the opcode decoder up
-  opcode_decoder u_opcode_decoder (
-    .opcode(),
-    .isALUreg(),
-    .isALUimm(),
-    .isStore(iStore),
-    .isJALR(),
-    .isLoad(),
-    .isBranch(),
-    .isAUIPC(),
-    .isLUI(),
-    .isJAL(),
-    .isSYSTEM()
-  )
+  // opcode_decoder u_opcode_decoder (
+  //   .opcode(),
+  //   .isALUreg(),
+  //   .isALUimm(),
+  //   .isStore(iStore),
+  //   .isJALR(),
+  //   .isLoad(),
+  //   .isBranch(),
+  //   .isAUIPC(),
+  //   .isLUI(),
+  //   .isJAL(),
+  //   .isSYSTEM()
+  // )
 
 // ---------------------------------------------------
 // Field Decoder
