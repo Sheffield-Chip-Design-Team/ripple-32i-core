@@ -35,7 +35,7 @@ module opcode_decoder (
   assign isALUreg = (opcode[6:0] == ALU_REG_OPCODE);   // rd <- rs1 OP rs2   
   assign isALUimm = (opcode[6:0] == ALU_IMM_OPCODE);   // rd <- rs1 OP Iimm
   assign isBranch = (opcode[6:0] == BRANCH_OPCODE);
-  assign isLoad = (opcode[6:0] == LOAD_OPCODE);    // if(rs1 OP rs2) PC<-PC+Bimm
+  assign isLoad   = (opcode[6:0] == LOAD_OPCODE);    // if(rs1 OP rs2) PC<-PC+Bimm
   // ... add more instruction types here
 
 endmodule
