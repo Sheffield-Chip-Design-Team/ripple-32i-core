@@ -4,7 +4,8 @@ from cocotb.triggers import Timer
 
 @cocotb.test()
 async def test_opcode_decoder_combinational(uut):
-
+  uut.opcode.value = 0
+  
   opcode_dict = {
     0b0110011: "isALUreg",
     0b0010011: "isALUimm",
