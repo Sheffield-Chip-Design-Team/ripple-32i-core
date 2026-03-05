@@ -19,6 +19,7 @@ venv/
 # Build artifacts
 dist/
 build/
+verilator/
 
 # Temporary files
 *.swp
