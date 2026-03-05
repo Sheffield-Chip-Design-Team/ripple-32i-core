@@ -48,6 +48,7 @@ module opcode_decoder (
   assign isJAL = (opcode[6:0] == JAL_OPCODE);    // rd = PC+4; PC += imm
   assign isSYSTEM = (opcode[6:0] == SYSTEM_OPCODE);
 
+
   // ... add more instruction types here
 
 endmodule

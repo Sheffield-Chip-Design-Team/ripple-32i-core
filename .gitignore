@@ -25,3 +25,5 @@ verilator/
 *.swp
 *.swo
 *~
+verilator/
+icarus/
