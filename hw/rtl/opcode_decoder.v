@@ -29,11 +29,25 @@ module opcode_decoder (
 
   localparam [6:0] ALU_REG_OPCODE = 7'b0110011;
   localparam [6:0] ALU_IMM_OPCODE = 7'b0010011;
+  localparam [6:0] JALR_OPCODE = 7'b1100111;
+  localparam [6:0] LOAD_OPCODE = 7'0000011;
+  localparam [6:0] STORE_OPCODE = 7'0100011;
   localparam [6:0] BRANCH_OPCODE  = 7'b1100011;
+  localparam [6:0] LUI_OPCODE  = 7'0110111;
+  localparam [6:0] JAL_OPCODE  = 7'1101111;
+  localparam [6:0] SYSTEM_OPCODE  = 7'1110011;
  
   assign isALUreg = (opcode[6:0] == ALU_REG_OPCODE);   // rd <- rs1 OP rs2   
   assign isALUimm = (opcode[6:0] == ALU_IMM_OPCODE);   // rd <- rs1 OP Iimm
+  assign isJALR = (opcode[6:0] == JALR_OPCODE);   // rd = PC+4; PC = rs1 + imm
+  assign isLoad = (opcode[6:0] == LOAD_OPCODE);   // rd = M[rs1+imm][0:7], rd = M[rs1+imm][0:15], rd = M[rs1+imm][0:31], rd = M[rs1+imm][0:7], rd = M[rs1+imm][0:15]
+  assign isStore = (opcode[6:0] == STORE_OPCODE);   // M[rs1+imm][0:7] = rs2[0:7], M[rs1+imm][0:15] = rs2[0:15], M[rs1+imm][0:31] = rs2[0:31]
   assign isBranch = (opcode[6:0] == BRANCH_OPCODE);    // if(rs1 OP rs2) PC<-PC+Bimm
+  assign isAUIPC = (opcode[6:0] == AUIPC_OPCODE);    // rd = PC + (imm << 12)
+  assign isLUI = (opcode[6:0] == LUI_OPCODE);    // rd = imm << 12
+  assign isJAL = (opcode[6:0] == JAL_OPCODE);    // rd = PC+4; PC += imm
+  assign isSYSTEM = (opcode[6:0] == SYSTEM_OPCODE);
+
   // ... add more instruction types here
 
 endmodule
