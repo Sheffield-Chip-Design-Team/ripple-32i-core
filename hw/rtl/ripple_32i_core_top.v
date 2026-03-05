@@ -70,7 +70,7 @@ module ripple_32i_core_top (
     // For instruction fetch, we don't need to write data, so we can tie these signals off
     .dat_o(),        
     .w_data(32'b0),     // No writes for instruction fetch
-    .we_o(1'b0),        // No writes for instruction fetch
+    .we_o(),            // No writes for instruction fetch
     .we(1'b0)           // writing is disabled for instruction fetch
   );
 

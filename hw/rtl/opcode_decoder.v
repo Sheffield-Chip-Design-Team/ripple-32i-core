@@ -9,15 +9,15 @@
 
 module opcode_decoder (
   input  wire [6:0] opcode,    // 7-bit opcode field
-  output wire       isALUreg,  // R-type
-  output wire       isALUimm,  // I-type
+  output wire       isALUreg,  // R-type+
+  output wire       isALUimm,  // I-type+
   output wire       isJALR,    // I-type
-  output wire       isLoad,    // I-type
-  output wire       isStore,   // S-type
-  output wire       isBranch,  // B-type
-  output wire       isAUIPC,   // U-type
-  output wire       isLUI,     // U-type
-  output wire       isJAL,     // J-type
+  output wire       isLoad,    // I-type+
+  output wire       isStore,   // S-type+
+  output wire       isBranch,  // B-type+
+  output wire       isAUIPC,   // U-type+
+  output wire       isLUI,     // U-type+
+  output wire       isJAL,     // J-type+
   output wire       isSYSTEM   // SYSTEM instructions (ECALL, EBREAK, etc.)
 );     
 
@@ -30,14 +30,30 @@ module opcode_decoder (
   localparam [6:0] ALU_REG_OPCODE = 7'b0110011;
   localparam [6:0] ALU_IMM_OPCODE = 7'b0010011;
   localparam [6:0] BRANCH_OPCODE  = 7'b1100011;
+<<<<<<< Updated upstream
   localparam [6:0] LOAD_OPCODE    = 7'b0000011;
   localparam [6:0] STORE_OPCODE   = 7'b0100011;
 
+=======
+
+  localparam [6:0] LOAD_BYTE      = 7'b0000011;
+  localparam [6:0] STORE_BYTE     = 7'b0100011;
+  localparam [6:0] JAL_OPCODE     = 7'b1101111;
+  localparam [6:0] JALR_OPCODE    = 7'b1100111;
+  localparam [6:0] AUIPC_OPCODE   = 7'b0010111;
+  localparam [6:0] LUI_OPCODE     = 7'b0110111;
+ 
+>>>>>>> Stashed changes
   assign isALUreg = (opcode[6:0] == ALU_REG_OPCODE);   // rd <- rs1 OP rs2   
   assign isALUimm = (opcode[6:0] == ALU_IMM_OPCODE);   // rd <- rs1 OP Iimm
   assign isBranch = (opcode[6:0] == BRANCH_OPCODE);
   assign isLoad   = (opcode[6:0] == LOAD_OPCODE);      // if(rs1 OP rs2) PC<-PC+Bimm
   assign isStore  = (opcode[6:0] == STORE_OPCODE);
   // ... add more instruction types here
-
+  assign isLoad   = (opcode[6:0] == LOAD_BYTE);
+  assign isStore  = (opcode[6:0] == STORE_BYTE);//M[rs1+imm][0:7]=rs2[0:7]
+  assign isJAL    = (opcode[6:0] == JAL_OPCODE);
+  assign isJALR   = (opcode[6:0] == JALR_OPCODE);
+  assign isAUIPC  = (opcode[6:0] == AUIPC_OPCODE);
+  assign isLUI    = (opcode[6:0] == LUI_OPCODE);
 endmodule
