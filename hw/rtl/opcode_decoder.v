@@ -32,12 +32,14 @@ module opcode_decoder (
   localparam [6:0] BRANCH_OPCODE  = 7'b1100011;
   localparam [6:0] LOAD_OPCODE    = 7'b0000011;
   localparam [6:0] STORE_OPCODE   = 7'b0100011;
+  localparam [6:0] IS_BRANCH      = 7'b1100011;
 
   assign isALUreg = (opcode[6:0] == ALU_REG_OPCODE);   // rd <- rs1 OP rs2   
   assign isALUimm = (opcode[6:0] == ALU_IMM_OPCODE);   // rd <- rs1 OP Iimm
   assign isBranch = (opcode[6:0] == BRANCH_OPCODE);
   assign isLoad   = (opcode[6:0] == LOAD_OPCODE);      // if(rs1 OP rs2) PC<-PC+Bimm
   assign isStore  = (opcode[6:0] == STORE_OPCODE);
+  assign isBranch = (opcode[6:0] == IS_BRANCH);
   // ... add more instruction types here
 
 endmodule
