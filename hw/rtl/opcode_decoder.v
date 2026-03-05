@@ -29,7 +29,11 @@ module opcode_decoder (
 
   localparam [6:0] ALU_REG_OPCODE = 7'b0110011;
   localparam [6:0] ALU_IMM_OPCODE = 7'b0010011;
+  localparam [6:0] JUMP_AND_LINK_REG_OPCODE = 7'b1100111;
+  localparam [6:0] LOAD_BYTE_OPCODE = 7'b0000011;
+  localparam [6:0] STORE_BYTE_OPCODE = 7'b0100011;
   localparam [6:0] BRANCH_OPCODE  = 7'b1100011;
+<<<<<<< Updated upstream
   localparam [6:0] LOAD_OPCODE    = 7'b0000011;
   localparam [6:0] STORE_OPCODE   = 7'b0100011;
 
@@ -38,6 +42,24 @@ module opcode_decoder (
   assign isBranch = (opcode[6:0] == BRANCH_OPCODE);
   assign isLoad   = (opcode[6:0] == LOAD_OPCODE);      // if(rs1 OP rs2) PC<-PC+Bimm
   assign isStore  = (opcode[6:0] == STORE_OPCODE);
+=======
+  localparam [6:0] ADD_UPPER_IMM_TO_PC_OPCODE = 7'b0010111;
+  localparam [6:0] LOAD_UPPER_IMM_OPCODE = 7'b0110111;
+  localparam [6:0] JUMP_AND_LINK_OPCODE = 7'b1101111;
+  localparam [6:0] ENVIRONMENT_OPCODE = 7'b1110011;
+ 
+  assign isALUreg = (opcode[6:0] == ALU_REG_OPCODE);   // rd <- rs1 OP rs2   
+  assign isALUimm = (opcode[6:0] == ALU_IMM_OPCODE);   // rd <- rs1 OP Iimm
+  assign isBranch = (opcode[6:0] == BRANCH_OPCODE);    // if(rs1 OP rs2) PC<-PC+Bimm
+  assign isLoad = (opcode[6:0] == LOAD_BYTE_OPCODE); 
+  assign isStore = (opcode[6:0] == STORE_BYTE_OPCODE);
+  assign isJAL = (opcode[6:0] == JUMP_AND_LINK_OPCODE);
+  assign isJALR = (opcode[6:0] == JUMP_AND_LINK_REG_OPCODE);
+  assign isLUI = (opcode[6:0] == LOAD_UPPER_IMM_OPCODE);
+  assign isAUIPC = (opcode[6:0] == ADD_UPPER_IMM_TO_PC_OPCODE);
+  assign isSYSTEM = (opcode [6:0] == ENVIRONMENT_OPCODE);
+
+>>>>>>> Stashed changes
   // ... add more instruction types here
 
 endmodule
