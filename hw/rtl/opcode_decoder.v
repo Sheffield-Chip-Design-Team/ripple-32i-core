@@ -40,4 +40,5 @@ module opcode_decoder (
   assign isStore  = (opcode[6:0] == STORE_OPCODE);
   // ... add more instruction types here
 
+// comment for trial commit
 endmodule
