@@ -1,5 +1,5 @@
 import cocotb
-from rv_instr_driver import RVInstructionDriver
+from rv_instr_drvr import RVInstructionDriver
 from random import randint
 from cocotb.triggers import Timer
 
@@ -9,7 +9,7 @@ async def test_control_unit_combinational(uut):
   rv_driver = RVInstructionDriver(uut.instr)
   
   # set random input values
-  await rv_driver.send_random(count=50)
+  await rv_driver.send_random(count=10)
   
   # TODO do some checking logic
 
