@@ -16,13 +16,13 @@ filesets:
     files:
       - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
       - hw/tb/opcode_decoder/opcode_decoder_wtb.v:    {file_type: verilogSource}
-      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: user, copyto: test_opcode_decoder.py}
+      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: user}
 
   control_unit:
     files:
       - hw/rtl/control_unit.v:                        {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.v:       {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.py:      {file_type: user, copyto: test_control_unit.py}
+      - hw/tb/control_unit/test_control_unit.py:      {file_type: user}
 
 targets:
   default: &default
@@ -30,9 +30,11 @@ targets:
       - rtl
   
   opcode_decoder:
+    default_tool: verilator
     filesets:
       - opcode_decoder
 
   control_unit:
+    default_tool: verilator
     filesets:
       - control_unit
