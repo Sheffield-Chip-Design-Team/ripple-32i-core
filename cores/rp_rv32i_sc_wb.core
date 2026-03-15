@@ -30,9 +30,11 @@ targets:
       - rtl
   
   opcode_decoder:
+    default_tool: verilator
     filesets:
       - opcode_decoder
 
   control_unit:
+    default_tool: verilator
     filesets:
       - control_unit
