@@ -1,4 +1,4 @@
-# Ripple32 CPU Repo
+# Ripple32 Environement Setup 
 
 ## Environment Setup (Ubuntu 24.04 / WSL2)
 
@@ -64,11 +64,8 @@ source venv/bin/activate
 python -m pip install -U pip
 ```
 
-### 2) Install Python dependencies
+### 2) Install cocotb
 
-```bash
-pip install -r requirements.txt
-```
 
 ### 3) Install Verilator (stable)
 
