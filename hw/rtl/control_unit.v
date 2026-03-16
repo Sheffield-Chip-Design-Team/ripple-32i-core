@@ -12,14 +12,21 @@ module control_unit (
   output reg  [4:0]  rs1,
   output reg  [4:0]  rs2,
   output reg  [4:0]  rd
-  // TODO - add control signals to the rest of the CPU
-  
 );
 
 // ---------------------------------------------------
 // Internal Signals
 // ---------------------------------------------------
-  
+
+  wire [31:0] i_imm; 
+  wire [31:0] s_imm;
+  wire [31:0] b_imm;
+  wire [31:0] u_imm; 
+  wire [31:0] j_imm; 
+
+  wire [2:0]  funct3;
+  wire [6:0]  funct7;
+
   wire        is_alu_reg;
   wire        is_alu_imm;
   wire        is_jalr;
@@ -53,6 +60,30 @@ module control_unit (
 // Field Decoder
 // ---------------------------------------------------
   
-// TODO .. write logic for decoding the fields
+  // Extract register fields
+  assign rs1 = instr[19:15];
+  assign rs2 = instr[24:20]; 
+  assign rd  = instr[11:7];
+
+  assign funct3 = instr[14:12];
+  assign funct7 = instr[31:25];
+
+  // Sign-extend immediate values for I,S,B and J types
+  assign i_imm = {{21{instr[31]}}, instr[30:20]};                                        
+  assign s_imm = {{21{instr[31]}}, instr[30:25], instr[11:7]};  
+  assign b_imm = {{20{instr[31]}}, instr[7],     instr[30:25], instr[11:8], 1'b0}; 
+  assign u_imm = {instr[31:12],    12'b0};                                     
+  assign j_imm = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21],1'b0};                                       
+  
+  // select imm based on instruction type
+  always @(*) begin 
+    case (1'b1)
+      is_lui:    imm = u_imm;
+      is_store:  imm = s_imm;
+      is_branch: imm = b_imm;
+      is_jal:    imm = j_imm;
+      default:   imm = i_imm;
+    endcase
+  end
 
 endmodule

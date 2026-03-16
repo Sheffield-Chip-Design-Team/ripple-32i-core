@@ -245,7 +245,6 @@ class RVInstructionDriver:
         self._default_opcode_logger = _log_unknown
       self._opcode_loggers.get(opcode, self._default_opcode_logger)(name, instr, opcode)
 
-
       await Timer(self.delay_ns, unit="ns")
     
 
