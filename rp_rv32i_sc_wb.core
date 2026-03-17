@@ -2,6 +2,7 @@ CAPI=2:
 name: sharc:cpu_ip:rp_rv32i_sc_wb:0.1.0
 description: Ripple RISC-V 32I Single-Cycle Processor with Wishbone Interface
 
+
 filesets:
   rtl:
     files:
@@ -23,6 +24,13 @@ filesets:
       - hw/rtl/control_unit.v:                        {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.v:       {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.py:      {file_type: user}
+
+   tb_top:
+    dependencies:
+      - sharc:mem_ip:1rw_ram:0.0.1
+    files:
+      - hw/tb/rp_rv32i_sc_gen/rp_rv32i_sc_gen_wtb.v:      {file_type: verilogSource}
+      - hw/tb/rp_rv32i_sc_gen/test_rp_rv32i_sc_gen.py:    {file_type: user}
 
 targets:
   default: &default
