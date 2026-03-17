@@ -6,12 +6,28 @@
 // =======================================================================
 
 module control_unit (
-  // instruction fields
   input  wire [31:0] instr,     // 7-bit opcode field
   output reg  [31:0] imm,
   output reg  [4:0]  rs1,
   output reg  [4:0]  rs2,
-  output reg  [4:0]  rd
+  output reg  [4:0]  rd,
+
+  output wire [2:0]  funct3,
+  output wire [6:0]  funct7,
+
+  output reg  [3:0]  alu_ctrl,
+  output reg         rd_wr_en,
+
+  output wire        is_alu_reg,
+  output wire        is_alu_imm,
+  output wire        is_jalr,
+  output wire        is_load,
+  output wire        is_store,
+  output wire        is_branch,
+  output wire        is_auipc,
+  output wire        is_lui,
+  output wire        is_jal,
+  output wire        is_system
 );
 
 // ---------------------------------------------------
@@ -23,20 +39,6 @@ module control_unit (
   wire [31:0] b_imm;
   wire [31:0] u_imm; 
   wire [31:0] j_imm; 
-
-  wire [2:0]  funct3;
-  wire [6:0]  funct7;
-
-  wire        is_alu_reg;
-  wire        is_alu_imm;
-  wire        is_jalr;
-  wire        is_load;
-  wire        is_store;
-  wire        is_branch;
-  wire        is_auipc;
-  wire        is_lui;
-  wire        is_jal;
-  wire        is_system;
 
 // ---------------------------------------------------
 // Opcode Decoder
