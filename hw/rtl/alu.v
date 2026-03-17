@@ -6,15 +6,29 @@
 // =======================================================================
 
 module alu (
-  input  wire [31:0] a,           // Operand A
-  input  wire [31:0] b,           // Operand B
-  input  wire [2:0]  alu_control, // ALU operation control signal
-  output reg  [31:0] result,      // ALU result
-  output reg         zero,        // Zero flag
-  output reg         carry,       // Carry flag
-  output reg         overflow     // Overflow flag
-); 
+  input  wire [31:0] src_a,           // Operand A
+  input  wire [31:0] src_b,           // Operand B
+  input  wire [2:0]  alu_control,     // ALU operation control signal
+  output reg  [31:0] alu_result,      // ALU result
+  output reg         zero             // Zero flag
+);
+ 
+  // ALU Operations
+  always @(*) begin
+    case (alu_control)
+      3'b000: alu_result = src_a + src_b;                 // ADD
+      3'b001: alu_result = src_a - src_b;                 // SUB
+      3'b010: alu_result = src_a & src_b;                 // AND
+      3'b011: alu_result = src_a | src_b;                 // OR
+      3'b100: alu_result = src_a ^ src_b;                 // XOR
+      3'b101: alu_result = src_a << src_b[4:0];           // SLL
+      3'b110: alu_result = src_a >> src_b[4:0];           // SRL
+      3'b111: alu_result = $signed(src_a) >>> src_b[4:0]; // SRA
+      default: alu_result = 32'b0;
+    endcase
 
-// TODO: Implement the ALU operations based on the alu_control signal
+    zero = (alu_result == 32'b0) ? 1'b1 : 1'b0; // Set zero flag
+  end
+
 
 endmodule
