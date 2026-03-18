@@ -1,107 +1,59 @@
-# Ripple32 CPU Repo
+# Risc-V 32I Single-Cycle Processor with Wishbone Interface
 
-## Environment Setup (Ubuntu 24.04 / WSL2)
+`rp_rv32i_sc_wb` is a minimal, educational RISC-V processor core implementing the RV32I base integer 
+instruction set using a single-cycle microarchitecture. The core exposes a Wishbone B4 compliant master 
+interface, providing a simple and well-documented open standard for connecting to memory and peripherals.
 
-### 0) Install WSL2 + Ubuntu 24.04 (Windows)
+This repository contains the RTL source, unit testbenches, and FuseSoC core description for the 
+`rp_rv32i_sc_wb` core. It is designed to be instantiated as a component within the broader Ripple-32 
+microcontroller SoC, but can equally be used standalone in any Wishbone-compatible design.
 
-1) Open **PowerShell (Admin)** and run:
+## Microarchitecture
 
-```powershell
-wsl --install
+The core uses a single-cycle execution model — every instruction is decoded, and executed 
+within a single clock cycle - The There is no pipelining, branch prediction, or out-of-order execution. 
+This makes the microarchitecture straightforward to reason about, simulate, and verify, at the cost 
+of maximum operating frequency.
+
+The datapath is composed of the following units:
+
+| Module            | Description                                               |
+|-------------------|-----------------------------------------------------------|
+| `opcode_decoder`  | Decodes the 32-bit instruction word into control fields   |
+| `control_unit`    | Generates datapath control signals from decoded opcode    |
+| `reg_file`        | 32 x 32-bit general purpose register file                 |
+| `alu`             | Arithmetic and logic unit supporting all RV32I operations |
+| `wb_m_bus_intf`   | Wishbone B4 master interface for memory and I/O access    |
+
+## Interface
+
+The core communicates with memory and peripherals exclusively through its Wishbone master port. 
+Instruction fetch and data access are both performed over this interface, following the classic 
+von Neumann model with a shared address space.
+
+## Repository Structure
+```
+hw/
+├── rtl/                  # Synthesisable RTL source
+│   ├── rp_rv32i_sc_wb.v  # Top-level core
+│   ├── ...
+└── tb/                   # Unit testbenches (cocotb)
+    └── ...
 ```
 
-- If you want to explicitly install **Ubuntu 24.04 LTS** (recommended), first list available distros:
+## Verification
 
-```powershell
-wsl --list --online
-```
-
-Then install Ubuntu 24.04:
-
-```powershell
-wsl --install -d Ubuntu-24.04
-```
-
-2) Reboot Windows if prompted.
-
-3) Launch **Ubuntu 24.04** from the Start Menu once, then finish the first-time setup (create username/password).
-
-(Optional) Update WSL:
-
-```powershell
-wsl --update
-```
-
-(Optional) Confirm you are using WSL2:
-
-```powershell
-wsl -l -v
-```
-
-### 0.1) Install Git (inside WSL / Ubuntu)
-
-Inside the Ubuntu (WSL) terminal:
+Unit-level verification is performed using [cocotb](https://www.cocotb.org/).Optionally, FuseSoC may be used to 
+manage fileset assembly and simulation targets. Each sub-module has an independent testbench allowing 
+targeted verification of individual datapath components.
 
 ```bash
-sudo apt update
-sudo apt install -y git-all
-git --version
+# Run the opcode decoder testbench
+coral sim --exe verilator --dut opcode_decoder --waves -v
+
 ```
 
-(Optional) Set your Git identity:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
-```
-
-### 1) Create and activate a Python venv
-
-```bash
-cd your/path
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install -U pip
-```
-
-### 2) Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3) Install Verilator (stable)
-
-This repo uses Verilator for linting and simulation. Cocotb requires **Verilator >= 5.036**.
-
-Run the official Git-based install script (installs to `/usr/local`, requires `sudo`):
-
-```bash
-./install_verilator_stable.sh
-```
-
-(It may take some time)
-
-Verify:
-
-```bash
-verilator --version
-which verilator
-```
-
-### 4) Run environment checks
-
-```bash
-./env_check.sh
-```
-
-## Notes
-
-- If you are using VS Code Remote (WSL), it may inject a project `venv/bin` into `PATH`. This is normal, but always use:
-
-  ```bash
-  which python3
-  which cocotb-config
-  ```
-
-  if you suspect version/path conflicts.
+## Dependencies
+- [FuseSoC](https://fusesoc.readthedocs.io/) — core and fileset management
+- [cocotb](https://www.cocotb.org/) — Python-based hardware verification
+- [Icarus Verilog](http://iverilog.icarus.com/) or [Verilator](https://www.veripool.org/verilator/) — simulation backend

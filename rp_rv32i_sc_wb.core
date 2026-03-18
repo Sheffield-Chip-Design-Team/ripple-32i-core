@@ -1,0 +1,40 @@
+CAPI=2:
+name: sharc:cpu_ip:rp_rv32i_sc_wb:0.1.0
+description: Ripple RISC-V 32I Single-Cycle Processor with Wishbone Interface
+
+filesets:
+  rtl:
+    files:
+      - hw/rtl/alu.v:                                 {file_type: verilogSource}
+      - hw/rtl/control_unit.v:                        {file_type: verilogSource}
+      - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
+      - hw/rtl/reg_file.v:                            {file_type: verilogSource}
+      - hw/rtl/rp_rv32i_sc_wb.v:                      {file_type: verilogSource}
+      - hw/rtl/wb_m_bus_intf.v:                       {file_type: verilogSource}
+
+  opcode_decoder:
+    files:
+      - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
+      - hw/tb/opcode_decoder/opcode_decoder_wtb.v:    {file_type: verilogSource}
+      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: user}
+
+  control_unit:
+    files:
+      - hw/rtl/control_unit.v:                        {file_type: verilogSource}
+      - hw/tb/control_unit/test_control_unit.v:       {file_type: verilogSource}
+      - hw/tb/control_unit/test_control_unit.py:      {file_type: user}
+
+targets:
+  default: &default
+    filesets:
+      - rtl
+  
+  opcode_decoder:
+    default_tool: verilator
+    filesets:
+      - opcode_decoder
+
+  control_unit:
+    default_tool: verilator
+    filesets:
+      - control_unit

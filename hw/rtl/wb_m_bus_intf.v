@@ -5,7 +5,7 @@
 //              the external interconnect and memory system using the Wishbone protocol.
 // =======================================================================
 
-module ripple_wishbone_bridge (
+module wb_m_bus_intf (
   input wire        clk,        
   input wire        rst_n,      
 
