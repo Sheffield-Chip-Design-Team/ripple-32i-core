@@ -49,7 +49,7 @@ module ripple_32i_core_top (
 // Fetch
 // ---------------------------------------------------
 
-  ripple_wishbone_bridge u_instruction_fetch (
+  rp_rv32i_sc_wb u_instruction_fetch (
     .clk(clk),
     .rst_n(rst_n),
     
