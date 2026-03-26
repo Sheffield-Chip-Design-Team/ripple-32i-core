@@ -97,7 +97,7 @@ wire is_lhu = is_load && (funct3 == 3'b101);
 // Stores
 wire is_sb = is_store && (funct3 == 3'b000);
 wire is_sh = is_store && (funct3 == 3'b001);
-wire is_sw = is_Store && (funct3 == 3'b010);
+wire is_sw = is_store && (funct3 == 3'b010);
 
 // Branches
 wire is_beq  = is_branch && (funct3 == 3'b000);
