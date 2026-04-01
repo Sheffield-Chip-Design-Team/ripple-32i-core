@@ -17,4 +17,52 @@ module alu (
 
 // TODO: Implement the ALU operations based on the alu_control signal
 
+
+localparam ADD = 3'b000;
+localparam SUB = 3'b001;
+localparam AND = 3'b010;
+localparam OR  = 3'b011;
+localparam XOR = 3'b100;
+localparam SLL = 3'b101;  // shift left logical
+localparam SRL = 3'b110;  // shift right logical
+localparam SRA = 3'b111;  // shift right arithmetic
+
+// 33-bit temporary variable for capturing carry
+reg [32:0] ans;
+
+always @(*) begin
+  // Set default values to 0
+  carry    = 1'b0;
+  overflow = 1'b0;
+  ans      = 33'b0;
+
+  case (alu_control)
+    ADD: begin
+      ans      = {1'b0, a} + {1'b0, b};
+      result   = ans[31:0];
+      carry    = ans[32];
+      overflow = (a[31] == b[31]) && (result[31] != a[31]);
+    end
+
+    SUB: begin
+      ans      = {1'b0, a} - {1'b0, b};
+      result   = ans[31:0];
+      carry    = ans[32];
+      overflow = (a[31] != b[31]) && (result[31] != a[31]);
+    end
+
+    AND: result = a & b;
+    OR:  result = a | b;
+    XOR: result = a ^ b;
+
+    SLL: result = a << b[4:0];
+    SRL: result = a >> b[4:0];
+    SRA: result = $signed(a) >>> b[4:0];
+
+    default: result = 32'b0;
+  endcase
+
+  // Zero flag
+  zero = (result == 32'b0);
+end
 endmodule
