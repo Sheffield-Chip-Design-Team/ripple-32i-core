@@ -402,7 +402,7 @@ always @(*) begin
   // Branches
 
   else if (is_beq) begin
-    alu_control = ALU_ADD;
+    alu_control = ALU_SUB;
     branch_type = BR_BEQ;
   end
   else if (is_bne) begin
