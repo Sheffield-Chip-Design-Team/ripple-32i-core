@@ -30,7 +30,7 @@ module control_unit (
   output reg [1:0] mem_size,      // 00 = byte, 01 = half, 10 = word
   output reg       load_unsigned, // 0 = signed load, 1 = unsigned load
   output reg [1:0] wb_sel,        // 00 = ALU, 01 = MEM, 10 = PC+4
-  output reg [2:0] branch_type,   // for none, beq, bne, blt, bge, bltu,
+  output reg [2:0] branch_type,   // for none, beq, bne, blt, bge, bltu, bgeu
   output reg       jump,
   output reg       jalr
 );
