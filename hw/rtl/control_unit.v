@@ -32,7 +32,8 @@ module control_unit (
   output reg [1:0] wb_sel,        // 00 = ALU, 01 = MEM, 10 = PC+4
   output reg [2:0] branch_type,   // for none, beq, bne, blt, bge, bltu, bgeu
   output reg       jump,
-  output reg       jalr
+  output reg       jalr,
+  output reg       illegal_instr
 );
 
 // ---------------------------------------------------
@@ -120,6 +121,12 @@ wire [11:0] imm12  = instr[31:20];
 // ---------------------------------------------------
 
 // R-type ALU
+
+// Adding a helper wire first before decoding to dinstinguish invalid funct7
+wire alu_reg_funct7_valid =
+(funct7 == 7'b0000000) ||
+(funct7 == 7'b0100000);
+
 wire is_add  = is_alu_reg && (funct3 == 3'b000) && (funct7 == 7'b0000000);
 wire is_sub  = is_alu_reg && (funct3 == 3'b000) && (funct7 == 7'b0100000);
 wire is_sll  = is_alu_reg && (funct3 == 3'b001) && (funct7 == 7'b0000000);
@@ -132,6 +139,12 @@ wire is_or   = is_alu_reg && (funct3 == 3'b110) && (funct7 == 7'b0000000);
 wire is_and  = is_alu_reg && (funct3 == 3'b111) && (funct7 == 7'b0000000);
 
 // I-type ALU
+
+// Another helper wire for shift-immediate instructions
+wire shift_imm_funct7_valid =
+(funct7 == 7'b0000000) ||
+(funct7 == 7'b0100000);
+
 wire is_addi  = is_alu_imm && (funct3 == 3'b000);
 wire is_slli  = is_alu_imm && (funct3 == 3'b001) && (funct7 == 7'b0000000);
 wire is_slti  = is_alu_imm && (funct3 == 3'b010);
@@ -143,6 +156,15 @@ wire is_ori   = is_alu_imm && (funct3 == 3'b110);
 wire is_andi  = is_alu_imm && (funct3 == 3'b111);
 
 // Loads
+
+// Adding a helper wire first before decoding to distinguish invalid funct3
+wire load_funct3_valid =
+(funct3 == 3'b000) || // lb
+(funct3 == 3'b001) || // lh
+(funct3 == 3'b010) || // lw
+(funct3 == 3'b100) || // lbu
+(funct3 == 3'b101);   // lhu
+
 wire is_lb  = is_load && (funct3 == 3'b000);
 wire is_lh  = is_load && (funct3 == 3'b001);
 wire is_lw  = is_load && (funct3 == 3'b010);
@@ -150,11 +172,28 @@ wire is_lbu = is_load && (funct3 == 3'b100);
 wire is_lhu = is_load && (funct3 == 3'b101);
 
 // Stores
+
+// Another helper wire for stores
+wire store_funct3_valid =
+(funct3 == 3'b000) || // sb
+(funct3 == 3'b001) || // sh
+(funct3 == 3'b010);   // sw
+
 wire is_sb = is_store && (funct3 == 3'b000);
 wire is_sh = is_store && (funct3 == 3'b001);
 wire is_sw = is_store && (funct3 == 3'b010);
 
 // Branches
+
+// Another helper wire for branches
+wire branch3_funct3_valid =
+(funct3 == 3'b000) || // beq
+(funct3 == 3'b001) || // bne
+(funct3 == 3'b100) || // blt
+(funct3 == 3'b101) || // bge
+(funct3 == 3'b110) || // bltu
+(funct3 == 3'b111);   // bgeu
+
 wire is_beq  = is_branch && (funct3 == 3'b000);
 wire is_bne  = is_branch && (funct3 == 3'b001);
 wire is_blt  = is_branch && (funct3 == 3'b100);
@@ -228,6 +267,8 @@ end
 // ---------------------------------------------------
 // Control Signal Generator (Step 3)
 // ---------------------------------------------------
+reg valid_instr;
+
 always @(*) begin
   // Safe defaults
   alu_control   = ALU_ADD;
@@ -242,47 +283,59 @@ always @(*) begin
   branch_type   = BR_NONE;
   jump          = 1'b0;
   jalr          = 1'b0;
+  illegal_instr = 1'b0;
+  valid_instr   = 1'b0;
 
   // R-type ALU
   if (is_add) begin
     alu_control = ALU_ADD;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_sub) begin
     alu_control = ALU_SUB;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_sll) begin
     alu_control = ALU_SLL;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_slt) begin
     alu_control = ALU_SLT;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_sltu) begin
     alu_control = ALU_SLTU;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_xor) begin
     alu_control = ALU_XOR;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_srl) begin
     alu_control = ALU_SRL;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_sra) begin
     alu_control = ALU_SRA;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_or) begin
     alu_control = ALU_OR;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_and) begin
     alu_control = ALU_AND;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
 
   // I-type ALU
@@ -290,46 +343,55 @@ always @(*) begin
     alu_control = ALU_ADD;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_slli) begin
     alu_control = ALU_SLL;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_slti) begin
     alu_control = ALU_SLT;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_sltiu) begin
     alu_control = ALU_SLTU;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_xori) begin
     alu_control = ALU_XOR;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_srli) begin
     alu_control = ALU_SRL;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_srai) begin
     alu_control = ALU_SRA;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_ori) begin
     alu_control = ALU_OR;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_andi) begin
     alu_control = ALU_AND;
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
+    valid_instr = 1'b1;
   end
 
   // Loads
@@ -341,6 +403,7 @@ always @(*) begin
     mem_size      = 2'b00;
     load_unsigned = 1'b0;
     wb_sel        = WB_MEM;
+    valid_instr = 1'b1;
   end
   else if (is_lh) begin
     alu_control   = ALU_ADD;
@@ -350,6 +413,7 @@ always @(*) begin
     mem_size      = 2'b01;
     load_unsigned = 1'b0;
     wb_sel        = WB_MEM;
+    valid_instr = 1'b1;
   end
   else if (is_lw) begin
     alu_control   = ALU_ADD;
@@ -359,6 +423,7 @@ always @(*) begin
     mem_size      = 2'b10;
     load_unsigned = 1'b0;
     wb_sel        = WB_MEM;
+    valid_instr = 1'b1;
   end
     else if (is_lbu) begin
     alu_control   = ALU_ADD;
@@ -368,6 +433,7 @@ always @(*) begin
     mem_size      = 2'b00;
     load_unsigned = 1'b1;
     wb_sel        = WB_MEM;
+    valid_instr = 1'b1;
   end
     else if (is_lhu) begin
     alu_control   = ALU_ADD;
@@ -377,6 +443,7 @@ always @(*) begin
     mem_size      = 2'b01;
     load_unsigned = 1'b1;
     wb_sel        = WB_MEM;
+    valid_instr = 1'b1;
   end
 
   // Stores
@@ -385,18 +452,21 @@ always @(*) begin
     alu_b_sel   = 1'b1;
     mem_write   = 1'b1;
     mem_size    = 2'b00;
+    valid_instr = 1'b1;
   end
   else if (is_sh) begin
     alu_control = ALU_ADD;
     alu_b_sel   = 1'b1;
     mem_write   = 1'b1;
     mem_size    = 2'b01;
+    valid_instr = 1'b1;
   end
   else if (is_sw) begin
     alu_control = ALU_ADD;
     alu_b_sel   = 1'b1;
     mem_write   = 1'b1;
     mem_size    = 2'b10;
+    valid_instr = 1'b1;
   end
 
   // Branches
@@ -404,26 +474,32 @@ always @(*) begin
   else if (is_beq) begin
     alu_control = ALU_SUB;
     branch_type = BR_BEQ;
+    valid_instr = 1'b1;
   end
   else if (is_bne) begin
     alu_control = ALU_SUB;
     branch_type = BR_BNE;
+    valid_instr = 1'b1;
   end
   else if (is_blt) begin
     alu_control = ALU_SLT;
     branch_type = BR_BLT;
+    valid_instr = 1'b1;
   end
   else if (is_bge) begin
     alu_control = ALU_SLT;
     branch_type = BR_BGE;
+    valid_instr = 1'b1;
   end
   else if (is_bltu) begin
     alu_control = ALU_SLTU;
     branch_type = BR_BLTU;
+    valid_instr = 1'b1;
   end
   else if (is_bgeu) begin
     alu_control = ALU_SLTU;
     branch_type = BR_BGEU;
+    valid_instr = 1'b1;
   end
 
   // Jumps / upper-immediate
@@ -431,6 +507,7 @@ always @(*) begin
     reg_write = 1'b1;
     wb_sel    = WB_PC4;
     jump      = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_jalr_i) begin
     alu_control = ALU_ADD; // target = rs1 + imm
@@ -439,6 +516,7 @@ always @(*) begin
     wb_sel      = WB_PC4;
     jump        = 1'b1;
     jalr        = 1'b1;
+    valid_instr = 1'b1;
   end
   else if (is_lui_i) begin
     alu_control = ALU_ADD; // 0 + imm
@@ -446,6 +524,7 @@ always @(*) begin
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
     wb_sel      = WB_ALU;
+    valid_instr = 1'b1;
   end
   else if (is_auipc_i) begin
     alu_control = ALU_ADD; // pc + imm
@@ -453,14 +532,22 @@ always @(*) begin
     alu_b_sel   = 1'b1;
     reg_write   = 1'b1;
     wb_sel      = WB_ALU;
+    valid_instr = 1'b1;
   end
 
   // SYSTEM subset
   else if (is_ecall) begin
+    valid_instr = 1'b1;
     // leave defaults for now
   end
   else if (is_ebreak) begin
+    valid_instr = 1'b1;
     // leave defaults for now
+  end
+
+  // Asserting illegal_instr when nothing valid matched
+  if (!valid_instr) begin
+    illegal_instr = 1'b1;
   end
 end
 
