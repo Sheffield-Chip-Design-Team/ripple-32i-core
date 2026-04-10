@@ -258,7 +258,7 @@ always @(*) begin
 
       3'b111: begin
         if (funct7 == 7'b0000000) begin
-          alu_control = ALU_ADD;
+          alu_control = ALU_AND;
           valid_instr = 1'b1;
         end
       end
