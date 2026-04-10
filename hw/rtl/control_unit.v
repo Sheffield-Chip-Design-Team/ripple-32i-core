@@ -6,7 +6,7 @@
 // Implementation:
 //                 Step 1: field decode (imm, rs1, rs2, rd) for each
 //                         instruction type
-//                 Step 2: grouped RVB32I instruction-family decode
+//                 Step 2: grouped RV32I instruction-family decode
 //                 Step 3: datapath control-signal generation
 // =======================================================================
 `include "rv32i_defs.vh" // contains the localparams
