@@ -16,25 +16,38 @@ filesets:
     files:
       - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
       - hw/tb/opcode_decoder/opcode_decoder_wtb.v:    {file_type: verilogSource}
-      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: user}
+      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: cocotbTest}
 
   control_unit:
     files:
       - hw/rtl/control_unit.v:                        {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.v:       {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.py:      {file_type: user}
+      - hw/tb/control_unit/test_control_unit.py:      {file_type: cocotbTest}
+
+  tb_top:
+    files:
+      - hw/tb/rp_rv32i_sc_gen/rp_rv32i_sc_gen_wtb.v:      {file_type: verilogSource}
+      - hw/tb/rp_rv32i_sc_gen/test_rp_rv32i_sc_gen.py:    {file_type: user}
+    depend:
+      - ">=sharc:mem_ip:ram_1rw:0.0.1"
 
 targets:
   default: &default
     filesets:
       - rtl
-  
+    toplevel: rp_rv32i_sc_gen
+
+  tb_top:
+    <<: *default
+    description: Simulate the design
+    default_tool: verilator
+    filesets_append:
+      - tb_top
+    toplevel: rp_rv32i_sc_gen_wtb
+
   opcode_decoder:
+    description: Directed test for the opccode decoder
     default_tool: verilator
     filesets:
       - opcode_decoder
-
-  control_unit:
-    default_tool: verilator
-    filesets:
-      - control_unit
+    toplevel: opcode_decoder_wtb
