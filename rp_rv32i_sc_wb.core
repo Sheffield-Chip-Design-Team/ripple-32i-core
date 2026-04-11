@@ -5,49 +5,55 @@ description: Ripple RISC-V 32I Single-Cycle Processor with Wishbone Interface
 filesets:
   rtl:
     files:
-      - hw/rtl/alu.v:                                 {file_type: verilogSource}
-      - hw/rtl/control_unit.v:                        {file_type: verilogSource}
-      - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
-      - hw/rtl/reg_file.v:                            {file_type: verilogSource}
-      - hw/rtl/rp_rv32i_sc_wb.v:                      {file_type: verilogSource}
-      - hw/rtl/wb_m_bus_intf.v:                       {file_type: verilogSource}
+      - hw/rtl/alu.v:                                     {file_type: verilogSource}
+      - hw/rtl/control_unit.v:                            {file_type: verilogSource}
+      - hw/rtl/opcode_decoder.v:                          {file_type: verilogSource}
+      - hw/rtl/reg_file.v:                                {file_type: verilogSource}
+      - hw/rtl/rp_rv32i_sc_wb.v:                          {file_type: verilogSource}
+      - hw/rtl/wb_m_bus_intf.v:                           {file_type: verilogSource}
 
   opcode_decoder:
     files:
-      - hw/rtl/opcode_decoder.v:                      {file_type: verilogSource}
-      - hw/tb/opcode_decoder/opcode_decoder_wtb.v:    {file_type: verilogSource}
-      - hw/tb/opcode_decoder/test_opcode_decoder.py:  {file_type: cocotbTest}
+      - hw/rtl/opcode_decoder.v:                          {file_type: verilogSource}
+      - hw/tb/opcode_decoder/opcode_decoder_wtb.v:        {file_type: verilogSource}
+      - hw/tb/opcode_decoder/test_opcode_decoder.py:      {file_type: pythonSource}
 
   control_unit:
     files:
-      - hw/rtl/control_unit.v:                        {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.v:       {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.py:      {file_type: cocotbTest}
+      - hw/rtl/control_unit.v:                            {file_type: verilogSource}
+      - hw/tb/control_unit/test_control_unit.v:           {file_type: verilogSource}
+      - hw/tb/control_unit/test_control_unit.py:          {file_type: pythonSource}
 
   tb_top:
     files:
       - hw/tb/rp_rv32i_sc_gen/rp_rv32i_sc_gen_wtb.v:      {file_type: verilogSource}
-      - hw/tb/rp_rv32i_sc_gen/test_rp_rv32i_sc_gen.py:    {file_type: user}
+      - hw/tb/rp_rv32i_sc_gen/test_rp_rv32i_sc_gen.py:    {file_type: pythonSource}
     depend:
       - ">=sharc:mem_ip:ram_1rw:0.0.1"
 
 targets:
-  default: &default
+  default: &sim
+    description: Default.
     filesets:
       - rtl
     toplevel: rp_rv32i_sc_gen
 
   tb_top:
-    <<: *default
-    description: Simulate the design
-    default_tool: verilator
+    <<: *sim
+    description: Directed test for the CPU core.
+    flow: sim
+    flow_options:
+      tool: verilator
     filesets_append:
       - tb_top
     toplevel: rp_rv32i_sc_gen_wtb
 
   opcode_decoder:
-    description: Directed test for the opccode decoder
-    default_tool: verilator
+    <<: *sim
+    description: Directed test for the opcode decoder
+    flow: sim
+    flow_options:
+      tool: verilator
     filesets:
       - opcode_decoder
     toplevel: opcode_decoder_wtb
