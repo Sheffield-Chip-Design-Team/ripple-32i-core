@@ -20,8 +20,10 @@ filesets:
 
   control_unit:
     files:
+      - hw/rtl/rv32i_defs.vh:                             {file_type: verilogSource}
       - hw/rtl/control_unit.v:                            {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.v:           {file_type: verilogSource}
+      - hw/rtl/opcode_decoder.v:                          {file_type: verilogSource}
+      - hw/tb/control_unit/control_unit_wtb.v:            {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.py:          {file_type: pythonSource}
 
   tb_top:
@@ -57,3 +59,15 @@ targets:
     filesets:
       - opcode_decoder
     toplevel: opcode_decoder_wtb
+
+  control_unit:
+    <<: *sim
+    description: Directed test for the control unit
+    flow: sim
+    flow_options:
+      tool: verilator
+    filesets:
+      - control_unit
+    toplevel: control_unit_wtb
+
+    
