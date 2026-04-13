@@ -329,6 +329,10 @@ always @(*) begin
         load_unsigned = 1'b1;
         valid_instr   = 1'b1;
       end
+
+      default: begin
+        // Unsupported load funct3
+      end
     endcase
 
     if (!valid_instr) begin
@@ -357,6 +361,10 @@ always @(*) begin
       3'b010: begin // sw
         mem_size    = 2'b10;
         valid_instr = 1'b1;
+      end
+
+      default: begin
+        // Unsupported store funct3
       end
     endcase
 
@@ -403,6 +411,10 @@ always @(*) begin
         alu_control = ALU_SLTU;
         branch_type = BR_BGEU;
         valid_instr = 1'b1;
+      end
+
+      default: begin
+        // Unsupported branch funct3
       end
     endcase
   end
