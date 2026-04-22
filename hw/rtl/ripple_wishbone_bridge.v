@@ -1,52 +1,85 @@
 // =======================================================================
-// Module:      Wishbone Bridge
-// Project:     Ripple-32
-// Description: The Wishbone interface module connects the core to 
-//              the external interconnect and memory system using the Wishbone protocol.
+// Module:      Wishbone Bridge (Standard Verilog Version)
+// Description: Converted to use reg/wire and localparam for compatibility.
 // =======================================================================
 
-module ripple_wishbone_bridge (
-  input wire        clk,        
-  input wire        rst_n,      
+module wb_m_bus_intf (
+    input wire         clk,
+    input wire         rst_n,
 
-  // Ripple-32 (generic memory interface)
-  input        [31:0]  w_data,
-  output wire  [31:0]  r_data,  //r_data
-  input  wire          addr,  
-  input  wire          we,   
-  input  wire          en,     
-  output wire          valid,   //valid
+    // Ripple-32 interface
+    input      [31:0]  w_data,
+    output wire [31:0] r_data,
+    input wire [31:0]  addr,
+    input wire         we,
+    input wire         en,
+    output wire        valid,
 
-  // Data bus (Wishbone Master interface)
-  output wire [31:0] adr_o,   //addr
-  output wire [31:0] dat_o,   //w_data
-  input  wire [31:0] dat_i,
-  output wire        we_o,    //we
-  output wire [3:0]  sel_o,   //sel
-  output wire        stb_o,   //en
-  output wire        cyc_o,   //en
-  input  wire        ack_i 
+    // Wishbone Master interface
+    output wire [31:0] adr_o,
+    output wire [31:0] dat_o,
+    input  wire [31:0] dat_i,
+    output wire        we_o,
+    output wire [3:0]  sel_o,
+    output reg         stb_o, // Changed to reg for use in always block
+    output reg         cyc_o, // Changed to reg for use in always block
+    input  wire        ack_i
 );
 
-// TODO: Implement the Wishbone bridge logic here. 
-// This will involve translating the generic memory interface signals (w_data, r_data, addr, we, sel) 
-// into the appropriate Wishbone signals (d_adr_o, d_dat_o, d_we_o, d_sel_o, d_stb_o, d_cyc_o)
-// and handling the acknowledgment from the Wishbone bus (d_ack_i).
-   
-   // 1. master set address and data
-   assign adr_o = addr;
-   assign dat_o = w_data;
-   assign r_data = dat_i;
+    // 1. Define States using localparam instead of enum
+    localparam IDLE     = 2'b00;
+    localparam BUS_WAIT = 2'b01;
+    localparam DONE     = 2'b10;
 
-   // 2. master indicate write or read and select
-   assign we_o = we;
-   assign sel_o = 4'b1111;
+    reg [1:0] state;      // Using reg instead of logic
+    reg [1:0] next_state;
 
-   // 3. master pulls CYC and STB high
-   assign stb_o = en;
-   assign cyc_o = en;
-   
-   // 4. wait for slave set ACK high, once seen, cycle complete
-   assign valid = ack_i;
+    // 2. Simple Assignments
+    assign adr_o = addr;
+    assign dat_o = w_data;
+    assign r_data = dat_i;
+    assign we_o   = we;
+    assign sel_o  = 4'b1111;
+    assign valid  = ack_i;
+
+    // 3. State Transition Logic (Sequential)
+    // replaced always_ff with always @(posedge ...)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) 
+            state <= IDLE;
+        else 
+            state <= next_state;
+    end
+
+    // 4. Next State Logic (Combinational)
+    // replaced always_comb with always @(*)
+    always @(*) begin
+        next_state = state;
+        case (state)
+            IDLE: begin
+                if (en) next_state = BUS_WAIT;
+            end
+            BUS_WAIT: begin
+                if (ack_i) next_state = IDLE;
+            end
+            default: next_state = IDLE;
+        endcase
+    end
+
+    // 5. Output Logic for STB and CYC
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            cyc_o <= 1'b0;
+            stb_o <= 1'b0;
+        end else begin
+            if (next_state == BUS_WAIT) begin
+                cyc_o <= 1'b1;
+                stb_o <= 1'b1;
+            end else begin
+                cyc_o <= 1'b0;
+                stb_o <= 1'b0;
+            end
+        end
+    end
 
 endmodule
