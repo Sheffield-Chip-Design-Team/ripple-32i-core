@@ -9,7 +9,7 @@
 //                 Step 2: grouped RV32I instruction-family decode
 //                 Step 3: datapath control-signal generation
 // =======================================================================
-//`include "rv32i_defs.vh" // contains the localparams
+`include "rv32i_defs.vh" // contains the localparams
 
 module control_unit (
   // Instruction input
