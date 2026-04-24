@@ -61,7 +61,7 @@ module control_unit (
 // ---------------------------------------------------
 // Field Decoder
 // ---------------------------------------------------
-  
+
   // Extract register fields
   assign rs1 = instr[19:15];
   assign rs2 = instr[24:20]; 
@@ -71,7 +71,7 @@ module control_unit (
   assign funct7 = instr[31:25];
 
   // Sign-extend immediate values for I,S,B and J types
-  assign i_imm = {{21{instr[31]}}, instr[30:20]};                                        
+  assign i_imm = {{21{instr[31]}}, instr[30:20]};          
   assign s_imm = {{21{instr[31]}}, instr[30:25], instr[11:7]};  
   assign b_imm = {{20{instr[31]}}, instr[7],     instr[30:25], instr[11:8], 1'b0}; 
   assign u_imm = {instr[31:12],    12'b0};                                     
@@ -85,6 +85,36 @@ module control_unit (
       is_branch: imm = b_imm;
       is_jal:    imm = j_imm;
       default:   imm = i_imm;
+    endcase
+  end
+
+// ---------------------------------------------------
+// ALU Control Logic
+// ---------------------------------------------------
+
+  always @(*) begin
+    if (is_alu_reg) begin
+      alu_ctrl = {instr[30], funct3}; 
+    end else if (is_alu_imm) begin
+      if (funct3 == 3'b101) begin // SRLI/SRAI (special case)
+        alu_ctrl = {instr[30], funct3}; 
+      end else begin
+        alu_ctrl = {1'b0, funct3}; // force  alu_control[3] low for ADD/XOR/OR/AND/etc
+    end 
+    end else begin // default to ADD
+      alu_ctrl = 4'b0000; 
+    end
+  end
+
+// ---------------------------------------------------
+// Regiister File Control Logic
+// ---------------------------------------------------
+
+  always @(*) begin
+    case (1'b1)
+      // Enable write for instructions that write to rd
+      is_alu_reg, is_alu_imm, is_jal, is_jalr, is_load: rd_wr_en = 1'b1; 
+      default: rd_wr_en = 1'b0; // Disable write for other instructions
     endcase
   end
 

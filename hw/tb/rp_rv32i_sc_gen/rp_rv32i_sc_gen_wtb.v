@@ -22,14 +22,14 @@ module rp_rv32i_sc_gen_wtb;
   wire        ram_en_o;
 
   block_ram_model #(
-    .ADDR_WIDTH(32),
+    .ADDR_WIDTH(6),
     .DATA_WIDTH(32),
-    .INIT_VALUE(32'h0000_0013),
-    .RAM_WORDS(1024),
+    .MEM_FILE("../../program.hex"),
+    .RAM_WORDS(64), // 256 words of 32 bits = 1KB ROM
     .READ_DELAY(0)
   ) prog_rom (
     .clk      (clk),
-    .addr     (rom_addr_o),
+    .addr     (rom_addr_o[5:0]),
     .wdata    (32'b0),
     .bit_strb (32'd0),
     .en       (rom_en_o),
@@ -42,7 +42,6 @@ module rp_rv32i_sc_gen_wtb;
     .rst_n        (rst_n),
     .resume       (resume),
     .halt         (halt),
-    
     // Generic Program ROM interface
     .rom_data_i   (rom_data_i),
     .rom_addr_o   (rom_addr_o),
@@ -56,6 +55,8 @@ module rp_rv32i_sc_gen_wtb;
     .ram_be_o     (ram_be_o),
     .ram_en_o     (ram_en_o)
   );
+
+
 
 endmodule 
  

@@ -22,7 +22,7 @@ filesets:
     files:
       - hw/rtl/control_unit.v:                            {file_type: verilogSource}
       - hw/tb/control_unit/test_control_unit.v:           {file_type: verilogSource}
-      - hw/tb/control_unit/test_control_unit.py:          {file_type: pythonSource}
+      - hw/tb/control_unit/control_unit_wtb.py:          {file_type: pythonSource}
 
   tb_top:
     files:

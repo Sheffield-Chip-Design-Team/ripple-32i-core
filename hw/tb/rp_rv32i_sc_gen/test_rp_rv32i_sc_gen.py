@@ -23,7 +23,7 @@ async def test_rp_rv32i_sc_gen_sanity(uut):
     await RisingEdge(uut.clk)
 
     # continue test ...
-    await ClockCycles(uut.clk, 100)
+    await ClockCycles(uut.clk, 60)
     uut._log.info("Test Complete!")
 
     

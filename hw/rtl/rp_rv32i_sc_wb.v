@@ -78,21 +78,18 @@ module rp_rv32i_sc_gen (
 // Fetch
 // ---------------------------------------------------
 
-always @(posedge clk or negedge rst_n) begin
-  if (!rst_n) begin
-    f_pc     <= 32'b0;
-    rom_en_o <= 1'b0;
+  always @(posedge clk or negedge rst_n) begin
+      if (!rst_n) begin
+          f_pc     <= 32'b0;
+      end
+      else begin
+          f_pc     <= f_pc_next;   // update PC every cycle, no boot delay
+      end
   end
-  else begin
-    rom_addr_o <= f_pc;
-    rom_en_o   <= 1'b1;
-    f_instr    <= rom_data_i;
-    f_pc       <= f_pc_next;
-  end
-end
 
-assign f_pc_next = f_pc + 4;
-
+  assign rom_en_o   = rst_n;        // enable ROM on reset release for simplicity
+  assign rom_addr_o = f_pc >> 2;    // word-aligned addresses, so drop the bottom 2 bits
+  assign f_instr    = rom_data_i;
 
 // ---------------------------------------------------
 // Decode
@@ -122,7 +119,6 @@ control_unit u_control_unit (
   .is_jal     (d_is_jal),
   .is_system  (d_is_system)
 );
-
 
 // ---------------------------------------------------
 // Register File
@@ -159,7 +155,6 @@ alu u_alu (
   .zero        (e_zero)
 );
 
-
 // ---------------------------------------------------
 // Memory Access
 // ---------------------------------------------------
@@ -179,11 +174,20 @@ assign ram_addr_o  = e_alu_result;
 assign ram_wdata_o = e_rs2_data;
 assign ram_be_o    = m_byte_en_mask;
 
-
 // ---------------------------------------------------
 // Write Back
 // ---------------------------------------------------
 
-assign w_rd_data = d_is_load ? ram_rdata_i : e_alu_result;
+assign w_rd_data = d_is_load ? ram_rdata_i :
+  (d_is_jal || d_is_jalr) ? (f_pc + 32'd4) :
+  e_alu_result;
+
+wire        take_branch    = d_is_branch && e_zero;
+wire [31:0] pc_jump_target = f_pc + d_imm;
+wire [31:0] pc_jalr_target = (e_rs1_data + d_imm) & 32'hFFFF_FFFE;
+
+assign f_pc_next = d_is_jalr ? pc_jalr_target :
+   (d_is_jal || take_branch) ? pc_jump_target :
+   f_pc + 32'd4;
 
 endmodule
