@@ -1,6 +1,6 @@
 // =======================================================================
-// Module: Fetch Unit
-// Project: Ripple-32
+// Module:      Fetch Unit
+// Project:     Ripple-32
 // Description: The fetch unit will fetch an instruction from the address
 //              supplied to it, then stall the core until the fetch completes
 // =======================================================================
