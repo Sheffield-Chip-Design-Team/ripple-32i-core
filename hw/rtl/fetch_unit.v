@@ -33,8 +33,54 @@ module fetch_unit #(
     output reg        stall_err
 );
 
-// TODO: add internal regs/wires
+//  internal state
+    reg       fetch_active;
+    reg       [7:0] stall_count;
 
-// TODO: add reset and fetch behaviour
-    
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            ifu_instr_addr <= BOOT_ADDR;
+            instr_data_out <= 32'b0;
+            if_ready       <= 1'b0;
+            if_stall       <= 1'b0;
+            instr_valid    <= 1'b0;
+            if_err         <= 1'b0;
+            stall_err      <= 1'b0;
+            fetch_active   <= 1'b0;
+            stall_count    <= 8'b0;
+        end
+        else begin
+            if_ready    <= 1'b0;
+            instr_valid <= 1'b0;
+
+            if (!fetch_active && !bus_if_busy && !stall_err) begin
+                ifu_instr_addr <= fetch_addr_in;
+                if_ready       <= 1'b1;
+                if_stall       <= 1'b1;
+                fetch_active   <= 1'b1;
+                stall_count    <= 8'b0;
+            end
+
+            else if (fetch_active) begin
+                if (bus_if_done) begin
+                    instr_data_out <= instr_data_in;
+                    instr_valid    <= 1'b1;
+                    if_stall       <= 1'b0;
+                    fetch_active   <= 1'b0;
+                    stall_count    <= 8'b0;
+                    if_err         <= 1'b0;
+                end
+                else begin
+                    stall_count <= stall_count + 1'b1;
+                    if (stall_count + 1'b1 >= stall_timeout_val) begin
+                        stall_err    <= 1'b1;
+                        if_err       <= 1'b1;
+                        if_stall     <= 1'b1;
+                        fetch_active <= 1'b0;
+                    end
+                end
+            end
+        end
+    end
+
 endmodule
