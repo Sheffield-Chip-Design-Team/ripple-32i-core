@@ -8,7 +8,7 @@
 module alu (
   input  wire [31:0] a,           // Operand A
   input  wire [31:0] b,           // Operand B
-  input  wire [2:0]  alu_control, // ALU operation control signal
+  input  wire [3:0]  alu_control, // ALU operation control signal
   output reg  [31:0] result,      // ALU result
   output reg         zero,        // Zero flag
   output reg         carry,       // Carry flag
@@ -17,15 +17,17 @@ module alu (
 
 // TODO: Implement the ALU operations based on the alu_control signal
 
+localparam ADD  = 4'b0000;
+localparam SUB  = 4'b0001;
+localparam SLL  = 4'b0010;  
+localparam SLT  = 4'b0011;
+localparam SLTU = 4'b0100;
+localparam XOR  = 4'b0101;
+localparam SRL  = 4'b0110;  // shift right logical
+localparam SRA  = 4'b0111;  // shift right arithmetic
+localparam OR   = 4'b1000;
+localparam AND  = 4'b1001;
 
-localparam ADD = 3'b000;
-localparam SUB = 3'b001;
-localparam AND = 3'b010;
-localparam OR  = 3'b011;
-localparam XOR = 3'b100;
-localparam SLL = 3'b101;  // shift left logical
-localparam SRL = 3'b110;  // shift right logical
-localparam SRA = 3'b111;  // shift right arithmetic
 
 // 33-bit temporary variable for capturing carry
 reg [32:0] ans;
@@ -51,13 +53,16 @@ always @(*) begin
       overflow = (a[31] != b[31]) && (result[31] != a[31]);
     end
 
-    AND: result = a & b;
+    AND: result = a & b; 
     OR:  result = a | b;
     XOR: result = a ^ b;
 
     SLL: result = a << b[4:0];
-    SRL: result = a >> b[4:0];
-    SRA: result = $signed(a) >>> b[4:0];
+    SRL: result = a >> b[4:0]; 
+    SRA: result = $signed(a) >>> b[4:0]; 
+
+    SLT: result = ($signed(a) < $signed(b)) ? 32'd1 : 32'd0;  //set less than
+    SLTU:result = (a < b) ? 32'd1 : 32'd0;                    // set less than (unsigned)
 
     default: result = 32'b0;
   endcase
