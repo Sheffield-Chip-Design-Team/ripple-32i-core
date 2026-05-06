@@ -1,13 +1,15 @@
 // =======================================================================
 // Module:         Control Unit
 // Project:        Ripple-32
-// Description:    The control unit generates control signals based on
-//                 the opcode and function fields of the instruction.
-// Implementation:
-//                 Step 1: field decode (imm, rs1, rs2, rd) for each
-//                         instruction type
-//                 Step 2: grouped RV32I instruction-family decode
-//                 Step 3: datapath control-signal generation
+// Purpose:        Decodes a 32-bit RV32I instruction and generates the
+//                 control signals required by the datapath.
+// Responsibilities:
+//                 1. Decode instruction fields (imm, rs1, rs2, rd)
+//                 2. Classify supported RV32I instruction families
+//                    (R-type, I-type, S-type, B-type, U-type, J-type, SYSTEM)
+//                 3. Generate control outputs for ALU, memory, write-back, 
+//                    branch, and jump behaviour
+//                 4. Flag unsupported / illegal instructions using illegal_instr
 // =======================================================================
 `include "rv32i_defs.vh" // contains the localparams
 
@@ -15,13 +17,12 @@ module control_unit (
   // Instruction input
   input  wire [31:0] instr,
 
-  // Decoded outputs for step 1
+  // Decoded outputs 
   output reg  [31:0] imm,
   output reg  [4:0]  rs1,
   output reg  [4:0]  rs2,
   output reg  [4:0]  rd,
 
-  // Step 3 outputs
   output reg [3:0] alu_control,   // 4-bits wide - must match ALU encoding width
   output reg [1:0] alu_a_sel,     // 00 = rs1, 01 = pc, 10 = zero
   output reg       alu_b_sel,     // 0 = rs2, 1 = imm
@@ -83,7 +84,7 @@ wire [11:0] imm12  = instr[31:20];
 reg valid_instr;
 
 // ---------------------------------------------------
-// Field Decoder (Step 1)
+// Field Decoder
 // ---------------------------------------------------
 
 always @(*) begin
@@ -136,7 +137,7 @@ always @(*) begin
 end
 
 // ---------------------------------------------------
-// Control Signal Generator (Step 3)
+// Control Signal Generator
 // ---------------------------------------------------
 
 always @(*) begin
